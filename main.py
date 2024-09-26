@@ -9,7 +9,7 @@ class Game:
         pygame.display.set_caption("Celeste clone")
         self.screen = pygame.display.set_mode((640, 480))
 
-        self.clock = pygame.time.Clock()
+        self.clock = pygame.time.Clock() #eeeeeee
 
         self.img = pygame.image.load('data/images/sample2.png')
 
