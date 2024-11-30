@@ -1,6 +1,6 @@
 import pygame
 import sys
-
+from controls import controls
 
 class Game:
     def __init__(self):
