@@ -29,8 +29,8 @@ class Game:
         backgroundcolour = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
         while True:
             self.screen.fill(backgroundcolour)
-            self.hitbox_pos[0] += (self.x_movement[1] - self.x_movement[0]) * 6
-            self.hitbox_pos[1] += (self.y_movement[1] - self.y_movement[0]) * 6
+            self.hitbox.move_ip((self.x_movement[1] - self.x_movement[0]) * 6,
+                                (self.y_movement[1] - self.y_movement[0]) * 6)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
@@ -53,11 +53,8 @@ class Game:
                         self.x_movement[0] = False
                     if event.key == controls('right'):
                         self.x_movement[1] = False
-
-            self.hitbox.topleft = self.hitbox_pos
             self.hitbox.clamp_ip(self.background.get_rect())
-            self.hitbox_pos = list(self.hitbox.topleft)
-            self.screen.blit(self.img, self.hitbox_pos)
+            self.screen.blit(self.img, self.hitbox.topleft)
             pygame.display.update()
             self.clock.tick(60)
 

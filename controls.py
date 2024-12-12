@@ -1,12 +1,12 @@
 import pygame
 
 
-def controls(keybind):
-    if str(keybind) == 'up':
+def controls(action):
+    if str(action) == 'up':
         return pygame.K_UP
-    if str(keybind) == 'down':
+    if str(action) == 'down':
         return pygame.K_DOWN
-    if str(keybind) == 'left':
+    if str(action) == 'left':
         return pygame.K_LEFT
-    if str(keybind) == 'right':
+    if str(action) == 'right':
         return pygame.K_RIGHT
