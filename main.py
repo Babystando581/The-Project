@@ -4,6 +4,8 @@ import random
 from controls import controls
 
 
+
+
 class Game:
     def __init__(self):
         pygame.init()

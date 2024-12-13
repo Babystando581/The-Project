@@ -1,12 +1,16 @@
 import pygame
 
-
+move_up = pygame.K_UP
+move_down = pygame.K_DOWN
+move_left = pygame.K_LEFT
+move_right = pygame.K_RIGHT
 def controls(action):
     if str(action) == 'up':
-        return pygame.K_UP
+        return move_up
     if str(action) == 'down':
-        return pygame.K_DOWN
+        return move_down
     if str(action) == 'left':
-        return pygame.K_LEFT
+        return move_left
     if str(action) == 'right':
-        return pygame.K_RIGHT
+        return move_right
+

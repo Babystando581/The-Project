@@ -1,5 +1,4 @@
 import pygame
-
 def controlcase(action):
     match str(action):
         case 'up':
