@@ -1,9 +1,10 @@
 import pygame
 import sys
 import random
-from controls import controls
+from controls import mapper, setter, listenforinput
+import controls
 
-
+controls.listenforinput = True
 
 
 class Game:
@@ -16,7 +17,6 @@ class Game:
 
         self.img = pygame.image.load('data/images/sample2.png')
         self.img.set_colorkey((0, 0, 0))
-
         self.hitbox_pos = [160, 260]
 
         self.hitbox = self.img.get_rect()
@@ -27,33 +27,40 @@ class Game:
 
         self.background = pygame.Surface(size)
 
+        print(pygame.display.Info())
+
     def run(self):
-        backgroundcolour = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+        print(backgroundcolour := (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)))
         while True:
             self.screen.fill(backgroundcolour)
             self.hitbox.move_ip((self.x_movement[1] - self.x_movement[0]) * 6,
                                 (self.y_movement[1] - self.y_movement[0]) * 6)
             for event in pygame.event.get():
+
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
                 if event.type == pygame.KEYDOWN:
-                    if event.key == controls('up'):
+                    testbind = setter(event)
+                    print(testbind)
+                    # print('Down:', event.key)
+                    if event.key == mapper('up'):
                         self.y_movement[0] = True
-                    if event.key == controls('down'):
+                    if event.key == mapper('down'):
                         self.y_movement[1] = True
-                    if event.key == controls('left'):
+                    if event.key == mapper('left'):
                         self.x_movement[0] = True
-                    if event.key == controls('right'):
+                    if event.key == mapper('right'):
                         self.x_movement[1] = True
                 if event.type == pygame.KEYUP:
-                    if event.key == controls('up'):
+                    # print('Up:', event.key)
+                    if event.key == mapper('up'):
                         self.y_movement[0] = False
-                    if event.key == controls('down'):
+                    if event.key == mapper('down'):
                         self.y_movement[1] = False
-                    if event.key == controls('left'):
+                    if event.key == mapper('left'):
                         self.x_movement[0] = False
-                    if event.key == controls('right'):
+                    if event.key == mapper('right'):
                         self.x_movement[1] = False
             self.hitbox.clamp_ip(self.background.get_rect())
             self.screen.blit(self.img, self.hitbox.topleft)
