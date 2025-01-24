@@ -1,10 +1,7 @@
 import pygame
 import sys
 import random
-from controls import mapper, setter, listenforinput
-import controls
-
-controls.listenforinput = True
+from controls import mapper, setter, wait
 
 
 class Game:
@@ -30,20 +27,19 @@ class Game:
         print(pygame.display.Info())
 
     def run(self):
+        listenforinput = False
         print(backgroundcolour := (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)))
         while True:
             self.screen.fill(backgroundcolour)
             self.hitbox.move_ip((self.x_movement[1] - self.x_movement[0]) * 6,
                                 (self.y_movement[1] - self.y_movement[0]) * 6)
             for event in pygame.event.get():
-
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
                 if event.type == pygame.KEYDOWN:
                     testbind = setter(event)
-                    print(testbind)
-                    # print('Down:', event.key)
+                    print('Down:', testbind)
                     if event.key == mapper('up'):
                         self.y_movement[0] = True
                     if event.key == mapper('down'):
@@ -52,8 +48,12 @@ class Game:
                         self.x_movement[0] = True
                     if event.key == mapper('right'):
                         self.x_movement[1] = True
+                    if event.key == pygame.K_q:
+                        listenforinput = True
+                        wait()
                 if event.type == pygame.KEYUP:
-                    # print('Up:', event.key)
+                    testbind = setter(event)
+                    print('Up:', testbind)
                     if event.key == mapper('up'):
                         self.y_movement[0] = False
                     if event.key == mapper('down'):
@@ -62,6 +62,7 @@ class Game:
                         self.x_movement[0] = False
                     if event.key == mapper('right'):
                         self.x_movement[1] = False
+            print(listenforinput)
             self.hitbox.clamp_ip(self.background.get_rect())
             self.screen.blit(self.img, self.hitbox.topleft)
             pygame.display.update()

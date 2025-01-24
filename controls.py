@@ -1,4 +1,6 @@
-import pygame
+import pygame, time
+
+pygame.init()
 
 
 def mapper(action):
@@ -16,13 +18,16 @@ listenforinput = True
 
 
 def setter(event):
-    global listenforinput
-    if listenforinput:
-        # listenforinput = False
-        return event.key
+    return event.key
 
 
 move_up = 1073741906
 move_down = pygame.K_DOWN
 move_left = pygame.K_LEFT
 move_right = pygame.K_RIGHT
+
+
+def wait():
+    time.sleep(5)
+    global listenforinput
+    listenforinput = False
