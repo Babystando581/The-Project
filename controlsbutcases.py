@@ -1,4 +1,6 @@
 import pygame
+
+
 def controlcase(action):
     match str(action):
         case 'up':
@@ -9,6 +11,3 @@ def controlcase(action):
             return pygame.K_LEFT
         case 'right':
             return pygame.K_RIGHT
-
-
-
