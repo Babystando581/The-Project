@@ -1,18 +1,17 @@
 import pygame
 import time
 
-pygame.init()
-
 
 def mapper(action):
-    if str(action) == 'up':
-        return control_keybinds['move_up']
-    if str(action) == 'down':
-        return control_keybinds['move_down']
-    if str(action) == 'left':
-        return control_keybinds['move_left']
-    if str(action) == 'right':
-        return control_keybinds['move_right']
+    match str(action):
+        case 'up':
+            return control_keybinds['move_up']
+        case 'down':
+            return control_keybinds['move_down']
+        case 'left':
+            return control_keybinds['move_left']
+        case 'right':
+            return control_keybinds['move_right']
 
 
 listenforinput = False
@@ -44,4 +43,3 @@ def wait():
 def bodge():
     global listenforinput
     listenforinput = True
-

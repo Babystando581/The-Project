@@ -2,6 +2,7 @@ import pygame
 import sys
 import random
 from controls import mapper, setter, bodge
+from gravity import air_time, jumping_bodge
 
 
 class Game:
@@ -32,12 +33,11 @@ class Game:
 
         print(backgroundcolour := (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)))
         timer = 0
-        timer_start = 0
         while True:
-            timer += 1
+            timer += 0.2
             self.screen.fill(backgroundcolour)
             self.hitbox.move_ip((self.x_movement[1] - self.x_movement[0]) * 6,
-                                ((self.y_movement[1] - self.y_movement[0]) * 6) + 1 + 1.005**(timer - timer_start))
+                                ((self.y_movement[1] - self.y_movement[0]) * 15) + 2*1.5**(1 + air_time(timer)))
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
@@ -47,9 +47,10 @@ class Game:
                     print('Down:', event.key)
                     if event.key == mapper('up'):
                         self.y_movement[0] = True
-                        timer_start = timer
+                        jumping_bodge(True)
                     if event.key == mapper('down'):
                         self.y_movement[1] = True
+                        jumping_bodge(True)
                     if event.key == mapper('left'):
                         self.x_movement[0] = True
                     if event.key == mapper('right'):
@@ -60,9 +61,10 @@ class Game:
                     print('Up:', event.key)
                     if event.key == mapper('up'):
                         self.y_movement[0] = False
-                        timer_start = 0
+                        jumping_bodge(False)
                     if event.key == mapper('down'):
                         self.y_movement[1] = False
+                        jumping_bodge(False)
                     if event.key == mapper('left'):
                         self.x_movement[0] = False
                     if event.key == mapper('right'):
