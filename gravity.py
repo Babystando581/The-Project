@@ -1,19 +1,19 @@
-jumping = False
+on_ground = False
 
 jump_start = 0
 
 
 def air_time(timer):
     global jump_start
-    if jumping is False:
+    if on_ground is True:
         jump_start = timer
-        print('not holding ', timer, jump_start)
-    else:
-        print('holding ',timer, jump_start)
+        #print('not holding ', timer, jump_start)
+    #else:
+        #print('holding ',timer, jump_start)
 
     return timer - jump_start
 
 
 def jumping_bodge(x):
-    global jumping
-    jumping = x
+    global on_ground
+    on_ground = x
