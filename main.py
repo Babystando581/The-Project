@@ -55,18 +55,19 @@ class Game:
         global size
         print('WOAH', backgroundcolour := (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)))
         timer = 0
+
         while True:
             timer += 0.2
             self.x_speed = (self.x_movement[1] - self.x_movement[0]) * 6
             self.y_speed = ((self.y_movement[1] - self.y_movement[0]) * 15) + (0.8 * (air_time(timer))) ** 1.8
             self.screen.fill(backgroundcolour)
             self.hitbox.move_ip(self.x_speed, self.y_speed)
-            if (size[1] - self.hitbox.top) >= self.hitbox.height:
-                jumping_bodge(False)
-            else:
-                jumping_bodge(True)
             if pygame.Rect.colliderect(self.hitbox, floor.hitbox) is True:
-                self.hitbox_pos[1] = 200-(floor.hitbox.height + self.hitbox.height)
+                jumping_bodge(True)
+                self.hitbox.bottom = size[1] - floor.dimensions[1]
+                self.y_movement[0] = False
+            else:
+                jumping_bodge(False)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
@@ -74,7 +75,7 @@ class Game:
                 if event.type == pygame.KEYDOWN:
                     setter('move_up', event)
                     print('Down:', event.key)
-                    if event.key == mapper('up') and pygame.Rect.colliderect(self.hitbox, floor.hitbox) is True:
+                    if event.key == mapper('up'):
                         self.y_movement[0] = True
                     if event.key == mapper('down'):
                         self.y_movement[1] = True
