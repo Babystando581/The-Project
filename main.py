@@ -8,18 +8,28 @@ size = [0, 0]
 
 
 class Block:
-    def __init__(self, coords, dimensions, image=None, colour=None):
+    def __init__(self, coords, dimensions=None, image=None, colour=None):
         self.coords = coords
-        self.dimensions = dimensions
-        self.surf = image
-
-        if not image:
+        if image:
+            self.surf = pygame.image.load(image).convert()
+        else:
+            self.dimensions = dimensions
             self.surf = pygame.Surface(self.dimensions)
-            self.surf.fill(colour)
+            if colour:
+                self.surf.fill(colour)
+            else:
+                self.surf.blit(
+                    pygame.image.load('data/images/source_mod.png').subsurface(pygame.Rect((0, 0), self.dimensions)),
+                    (0, 0))
+
         self.hitbox = pygame.Rect(coords, dimensions)
 
+        if not colour:
+            self.colour = (255, 255, 255)
 
-floor = Block((0, 720 - 30), (1280, 30), None, (255, 255, 255))
+
+floor = Block((0, 720 - 30), (1280, 30), None, None)
+tester = Block((0, 0), (30, 30))
 
 
 class Game:
@@ -31,7 +41,7 @@ class Game:
 
         self.clock = pygame.time.Clock()
 
-        self.img = pygame.image.load('data/images/sample2.png')
+        self.img = pygame.image.load('data/images/sample2.png').convert()
         self.img.set_colorkey((0, 0, 0))
         self.hitbox_pos = [160, 260]
 
@@ -59,7 +69,10 @@ class Game:
         while True:
             timer += 0.2
             self.x_speed = (self.x_movement[1] - self.x_movement[0]) * 6
-            self.y_speed = ((self.y_movement[1] - self.y_movement[0]) * 15) + (0.8 * (air_time(timer))) ** 1.8
+            if pygame.Rect.colliderect(self.hitbox, floor.hitbox) is True:
+                self.y_speed = 0
+            else:
+                self.y_speed = ((self.y_movement[1] - self.y_movement[0]) * 15) + (0.8 * (air_time(timer))) ** 1.8
             self.screen.fill(backgroundcolour)
             self.hitbox.move_ip(self.x_speed, self.y_speed)
             if pygame.Rect.colliderect(self.hitbox, floor.hitbox) is True:
@@ -74,7 +87,7 @@ class Game:
                     sys.exit()
                 if event.type == pygame.KEYDOWN:
                     setter('move_up', event)
-                    print('Down:', event.key)
+                    # print('Down:', event.key)
                     if event.key == mapper('up'):
                         self.y_movement[0] = True
                     if event.key == mapper('down'):
@@ -89,7 +102,7 @@ class Game:
                         pygame.quit()
                         sys.exit()
                 if event.type == pygame.KEYUP:
-                    print('Up:', event.key)
+                    # print('Up:', event.key)
                     if event.key == mapper('up') and pygame.Rect.colliderect(self.hitbox, floor.hitbox) is True:
                         self.y_movement[0] = False
                     if event.key == mapper('down'):
@@ -102,6 +115,7 @@ class Game:
             self.hitbox.clamp_ip(self.background.get_rect())
             self.screen.blit(floor.surf, floor.coords)
             self.screen.blit(self.img, self.hitbox.topleft)
+            self.screen.blit(tester.surf, tester.coords)
             pygame.display.update()
             self.clock.tick(60)
 
