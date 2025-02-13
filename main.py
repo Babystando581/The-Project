@@ -28,8 +28,7 @@ class Block:
             self.colour = (255, 255, 255)
 
 
-floor = Block((0, 720 - 30), (1280, 30), None, None)
-tester = Block((0, 0), (30, 30))
+floor = Block((0, 720 - 30), (1280, 30), None, (255, 255, 255))
 
 
 class Game:
@@ -101,6 +100,11 @@ class Game:
                     if event.key == pygame.K_END:
                         pygame.quit()
                         sys.exit()
+                    if event.key == pygame.K_s:
+                        self.img = pygame.transform.scale_by(self.img, 1.2)
+                        self.hitbox.width *= 1.2
+                        self.hitbox.height *= 1.2
+                        self.hitbox.bottom = size[1] - floor.dimensions[1]
                 if event.type == pygame.KEYUP:
                     # print('Up:', event.key)
                     if event.key == mapper('up') and pygame.Rect.colliderect(self.hitbox, floor.hitbox) is True:
@@ -111,11 +115,9 @@ class Game:
                         self.x_movement[0] = False
                     if event.key == mapper('right'):
                         self.x_movement[1] = False
-
             self.hitbox.clamp_ip(self.background.get_rect())
             self.screen.blit(floor.surf, floor.coords)
             self.screen.blit(self.img, self.hitbox.topleft)
-            self.screen.blit(tester.surf, tester.coords)
             pygame.display.update()
             self.clock.tick(60)
 
