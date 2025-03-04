@@ -4,44 +4,97 @@ import random
 from controls import mapper, setter, bodge
 from gravity import air_time, jumping_bodge
 
-size = [1280, 720]
+size = [0, 0]
 
 
-class Block:
+class Block(pygame.sprite.Sprite):
     def __init__(self, coords, dimensions=None, image=None, colour=None):
+        super().__init__()
         self.coords = coords
+        self.rect = pygame.Rect(coords, dimensions)
         if image:
             self.surf = pygame.image.load(image).convert()
         else:
             self.dimensions = dimensions
             self.surf = pygame.Surface(self.dimensions)
             if colour:
-                self.colour = colour
-                self.surf.fill(self.colour)
+                self.surf.fill(colour)
             else:
-                self.colour = (255, 255, 255)
                 self.surf.blit(
                     pygame.image.load('data/images/source_mod.png').subsurface(pygame.Rect((0, 0), self.dimensions)),
                     (0, 0))
 
-        self.hitbox = pygame.Rect(coords, dimensions)
+    def draw(self):
+        screen.blit(self.surf, self.coords)
 
 
-solid_list = []
+class EntityGroup(pygame.sprite.Group):
+    def __init__(self):
+        super().__init__()
 
-floor = Block((0, size[1] - 30), (size[0], 30), None, (255, 255, 255))
-solid_list.append(floor)
+    def draw(self):
+        for sprite in self.sprites():
+            sprite.draw()
+
+
+class Character(pygame.sprite.Sprite):
+    def __init__(self, coords, img):
+        super().__init__()
+        self.coords = coords
+        self.img = img
+        self.rect = self.img.get_rect()
+        self.hitbox_pos = [160, 260]
+        self.x_movement = [False, False]
+
+        self.y_movement = [False, False]
+
+        self.x_speed = 0
+
+        self.y_speed = 0
+
+    def draw(self):
+        screen.blit(self.img, self.rect.topleft)
+
+
+class Human(Character):
+    def __init__(self):
+        super().__init__()
+
+    def move(self, movement):
+        if movement == 'up':
+            self.y_movement[0] = True
+        if movement == 'down':
+            self.y_movement[1] = True
+        if movement == 'left':
+            self.x_speed -= 5
+        if movement == 'right':
+            self.x_speed += 5
+    def update(self):
+        if pygame.Rect.colliderect(self.rect, solid_group) is True:
+            self.y_speed = 0
+        else:
+            self.y_speed = ((self.y_movement[1] - self.y_movement[0]) * 15) + (0.8 * (air_time(timer))) ** 1.8
+
+
+
+solid_group = EntityGroup()
+
+floor = Block((0, 720 - 30), (1280, 30), None, (255, 255, 255))
+
+solid_group.add(floor)
 
 test_platform = Block((1000, 500), (200, 50), None, (100, 100, 100))
-solid_list.append(test_platform)
+
+solid_group.add(test_platform)
+
+pygame.init()
+screen = pygame.display.set_mode(size := (1280, 720))
 
 
 class Game:
     def __init__(self):
         global size
-        pygame.init()
         pygame.display.set_caption("Celeste clone")
-        self.screen = pygame.display.set_mode(size)
 
         self.clock = pygame.time.Clock()
 
@@ -65,31 +118,27 @@ class Game:
 
         self.angle = 0
 
+
     def run(self):
         global size
         print('WOAH', backgroundcolour := (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)))
         timer = 0
-
         while True:
-            print(self.hitbox.bottom)
+
             timer += 0.2
-            self.x_speed = (self.x_movement[1] - self.x_movement[0]) * 6
-            for i in range(len(solid_list)):
-                if pygame.Rect.colliderect(self.hitbox, solid_list[i].hitbox) is True:
-                    self.y_speed = 0
-                else:
-                    self.y_speed = ((self.y_movement[1] - self.y_movement[0]) * 15) + (0.8 * (air_time(timer))) ** 1.8
-            self.screen.fill(backgroundcolour)
+            if pygame.Rect.colliderect(self.hitbox, floor.rect) is True:
+                self.y_speed = 0
+            else:
+                self.y_speed = ((self.y_movement[1] - self.y_movement[0]) * 15) + (0.8 * (air_time(timer))) ** 1.8
+            screen.fill(backgroundcolour)
             self.hitbox.move_ip(self.x_speed, self.y_speed)
-            if pygame.Rect.colliderect(self.hitbox, solid_list[0].hitbox) is True:
+
+            if pygame.Rect.colliderect(self.hitbox,floor.rect) is True:
                 jumping_bodge(True)
-                self.hitbox.bottom = size[1] - solid_list[0].dimensions[1]
+                self.hitbox.bottom = size[1] - floor.dimensions[1]
                 self.y_movement[0] = False
             else:
                 jumping_bodge(False)
-
-
-
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
@@ -98,13 +147,13 @@ class Game:
                     setter('move_up', event)
                     # print('Down:', event.key)
                     if event.key == mapper('up'):
-                        self.y_movement[0] = True
+                        self.y_speed -= 15
                     if event.key == mapper('down'):
                         self.y_movement[1] = True
                     if event.key == mapper('left'):
-                        self.x_movement[0] = True
+                        self.x_speed -= 5
                     if event.key == mapper('right'):
-                        self.x_movement[1] = True
+                        self.x_speed += 5
                     if event.key == pygame.K_q:
                         bodge()
                     if event.key == pygame.K_END:
@@ -115,26 +164,21 @@ class Game:
                         self.hitbox.width *= 1.2
                         self.hitbox.height *= 1.2
                         self.hitbox.bottom = size[1] - floor.dimensions[1]
-                    if event.key == pygame.K_t:
-                        self.hitbox.bottom = 300
                 if event.type == pygame.KEYUP:
                     # print('Up:', event.key)
-                    if event.key == mapper('up') and pygame.Rect.colliderect(self.hitbox, floor.hitbox) is True:
+                    if event.key == mapper('up') and pygame.Rect.colliderect(self.hitbox, floor.rect) is True:
                         self.y_movement[0] = False
                     if event.key == mapper('down'):
                         self.y_movement[1] = False
                     if event.key == mapper('left'):
-                        self.x_movement[0] = False
+                        self.x_speed += 5
                     if event.key == mapper('right'):
-                        self.x_movement[1] = False
+                        self.x_speed -= 5
             self.hitbox.clamp_ip(self.background.get_rect())
-            for i in range(len(solid_list)):
-                self.screen.blit(solid_list[i].surf, solid_list[i].coords)
-            self.screen.blit(self.img, self.hitbox.topleft)
+            solid_group.draw()
+            screen.blit(self.img, self.hitbox.topleft)
             pygame.display.update()
             self.clock.tick(60)
 
-
-print(type(solid_list[0]))
 
 Game().run()

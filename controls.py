@@ -22,6 +22,7 @@ def setter(mapping, event):
     global control_keybinds
     if listenforinput is True:
         control_keybinds[mapping] = event.key
+        print(event.key)
         listenforinput = False
         return event.key
 
