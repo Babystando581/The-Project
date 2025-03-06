@@ -4,7 +4,7 @@ import random
 from controls import mapper, setter, bodge
 from gravity import air_time, jumping_bodge
 
-size = [0, 0]
+size = [1280, 720]
 
 
 class Block(pygame.sprite.Sprite):
@@ -69,12 +69,12 @@ class Human(Character):
             self.x_speed -= 5
         if movement == 'right':
             self.x_speed += 5
+
     def update(self):
         if pygame.Rect.colliderect(self.rect, solid_group) is True:
             self.y_speed = 0
         else:
             self.y_speed = ((self.y_movement[1] - self.y_movement[0]) * 15) + (0.8 * (air_time(timer))) ** 1.8
-
 
 
 solid_group = EntityGroup()
@@ -88,7 +88,7 @@ test_platform = Block((1000, 500), (200, 50), None, (100, 100, 100))
 solid_group.add(test_platform)
 
 pygame.init()
-screen = pygame.display.set_mode(size := (1280, 720))
+screen = pygame.display.set_mode(size)
 
 
 class Game:
@@ -118,7 +118,6 @@ class Game:
 
         self.angle = 0
 
-
     def run(self):
         global size
         print('WOAH', backgroundcolour := (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)))
@@ -133,7 +132,7 @@ class Game:
             screen.fill(backgroundcolour)
             self.hitbox.move_ip(self.x_speed, self.y_speed)
 
-            if pygame.Rect.colliderect(self.hitbox,floor.rect) is True:
+            if pygame.Rect.colliderect(self.hitbox, floor.rect) is True:
                 jumping_bodge(True)
                 self.hitbox.bottom = size[1] - floor.dimensions[1]
                 self.y_movement[0] = False
