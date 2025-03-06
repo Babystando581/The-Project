@@ -6,6 +6,8 @@ from gravity import air_time, jumping_bodge
 
 size = [1280, 720]
 
+timer=0
+
 
 class Block(pygame.sprite.Sprite):
     def __init__(self, coords, dimensions=None, image=None, colour=None):
@@ -120,8 +122,9 @@ class Game:
 
     def run(self):
         global size
+        global timer
         print('WOAH', backgroundcolour := (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)))
-        timer = 0
+
         while True:
 
             timer += 0.2
@@ -146,7 +149,7 @@ class Game:
                     setter('move_up', event)
                     # print('Down:', event.key)
                     if event.key == mapper('up'):
-                        self.y_speed -= 15
+                        self.y_movement[0] = True
                     if event.key == mapper('down'):
                         self.y_movement[1] = True
                     if event.key == mapper('left'):
