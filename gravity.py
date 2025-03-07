@@ -21,8 +21,7 @@ def jumping_bodge(x):
     global on_ground
     on_ground = x
 
-
-#async def wait(s):
+# async def wait(s):
 #    await asyncio.sleep(s)
 #    print(s)
 
