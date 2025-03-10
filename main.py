@@ -12,6 +12,7 @@ pygame.init()
 
 screen = pygame.display.set_mode(size)
 
+
 class Block(pygame.sprite.Sprite):
     def __init__(self, coords, dimensions=None, image=None, colour=None):
         super().__init__()
@@ -48,7 +49,7 @@ class Character(pygame.sprite.Sprite):
         self.coords = coords
         self.img = img
         self.rect = self.img.get_rect()
-        self.hitbox_pos = coords
+        self.rect_pos = coords
         self.x_movement = [False, False]
 
         self.y_movement = [False, False]
@@ -58,14 +59,31 @@ class Character(pygame.sprite.Sprite):
         self.y_speed = 0
 
     def update(self):
-        ...
+        if pygame.Rect.colliderect(self.rect, floor.rect) is True:
+            self.y_speed = 0
+            jumping_bodge(True)
+            mii.rect.bottom = size[1] - floor.dimensions[1]
+            mii.y_movement[0] = False
+        else:
+            self.y_speed = ((self.y_movement[1] - self.y_movement[0]) * 15) + (0.8 * (air_time(timer))) ** 1.8
+
+        if pygame.Rect.colliderect(self.rect, test_platform.rect) is True:
+            jumping_bodge(True)
+            self.y_speed = 0
+            mii.rect.bottom = size[1] - test_platform.rect.top
+            print('a')
+            mii.y_movement[0] = False
+        else:
+            self.y_speed = ((self.y_movement[1] - self.y_movement[0]) * 15) + (0.8 * (air_time(timer))) ** 1.8
+        self.rect.move_ip(self.x_speed, self.y_speed)
+
     def draw(self):
         screen.blit(self.img, self.rect.topleft)
 
 
 class Human(Character):
-    def __init__(self,coords,img):
-        super().__init__(coords,img)
+    def __init__(self, coords, img):
+        super().__init__(coords, img)
 
     def move(self, movement, start):
         if start is True:
@@ -87,19 +105,19 @@ class Human(Character):
             if movement == 'right':
                 self.x_speed -= 5
 
-    def collision(self, collided_sprite: Block):
-        if 0 <= self.rect.bottom - collided_sprite.rect.top <= 0.15 * self.hitbox.height:
+    def collide(self, collided_sprite: Block):
+        if 0 <= self.rect.bottom - collided_sprite.rect.top <= 0.15 * self.rect.height:
             self.rect.bottom = collided_sprite.rect.top
         else:
             self.x_speed = 0
 
 
 class Player(Human):
-    def __init__(self,coords,img):
-        super().__init__(coords,img)
+    def __init__(self, coords, img):
+        super().__init__(coords, img)
 
 
-mii = Human([160, 260],pygame.image.load('data/images/sample2.png').convert_alpha())
+mii = Human([160, 260], pygame.image.load('data/images/sample2.png').convert_alpha())
 
 solid_group = EntityGroup()
 
@@ -112,28 +130,12 @@ test_platform = Block((1000, 500), (200, 50), None, (100, 100, 100))
 solid_group.add(test_platform)
 
 
-
-
 class Game:
     def __init__(self):
         global size
         pygame.display.set_caption("Celeste clone")
 
         self.clock = pygame.time.Clock()
-
-        self.img = pygame.image.load('data/images/sample2.png').convert()
-        self.img.set_colorkey((0, 0, 0))
-        self.hitbox_pos = [160, 260]
-
-        self.hitbox = self.img.get_rect()
-
-        self.x_movement = [False, False]
-
-        self.y_movement = [False, False]
-
-        self.x_speed = 0
-
-        self.y_speed = 0
 
         self.background = pygame.Surface(size)
 
@@ -149,20 +151,20 @@ class Game:
         while True:
             if (collision := pygame.sprite.spritecollide(mii, solid_group, dokill=False)) is True:
                 for sprite in collision:
-                    ...
+                    mii.collide(sprite)
 
             timer += 0.2
-            if pygame.Rect.colliderect(self.hitbox, floor.rect) is True:
-                self.y_speed = 0
+            if pygame.Rect.colliderect(mii.rect, floor.rect) is True:
+                mii.y_speed = 0
             else:
-                self.y_speed = ((self.y_movement[1] - self.y_movement[0]) * 15) + (0.8 * (air_time(timer))) ** 1.8
+                mii.y_speed = ((mii.y_movement[1] - mii.y_movement[0]) * 15) + (0.8 * (air_time(timer))) ** 1.8
             screen.fill(backgroundcolour)
-            self.hitbox.move_ip(self.x_speed, self.y_speed)
+            mii.update()
 
-            if pygame.Rect.colliderect(self.hitbox, floor.rect) is True:
+            if pygame.Rect.colliderect(mii.rect, floor.rect) is True:
                 jumping_bodge(True)
-                self.hitbox.bottom = size[1] - floor.dimensions[1]
-                self.y_movement[0] = False
+                mii.rect.bottom = size[1] - floor.dimensions[1]
+                mii.y_movement[0] = False
             else:
                 jumping_bodge(False)
             for event in pygame.event.get():
@@ -187,20 +189,20 @@ class Game:
                         sys.exit()
                     if event.key == pygame.K_s:
                         self.img = pygame.transform.scale_by(self.img, 1.2)
-                        self.hitbox.width *= 1.2
-                        self.hitbox.height *= 1.2
-                        self.hitbox.bottom = size[1] - floor.dimensions[1]
+                        self.rect.width *= 1.2
+                        self.rect.height *= 1.2
+                        self.rect.bottom = size[1] - floor.dimensions[1]
                 if event.type == pygame.KEYUP:
                     # print('Up:', event.key)
-                    if event.key == mapper('up') and pygame.Rect.colliderect(self.hitbox, floor.rect) is True:
+                    if event.key == mapper('up') and pygame.Rect.colliderect(mii.rect, floor.rect) is True:
                         mii.move('up', False)
                     if event.key == mapper('down'):
                         mii.move('down', False)
                     if event.key == mapper('left'):
                         mii.move('left', False)
                     if event.key == mapper('right'):
-                        self.x_speed -= 5
-            self.hitbox.clamp_ip(self.background.get_rect())
+                        mii.move('right',False)
+            mii.rect.clamp_ip(self.background.get_rect())
             solid_group.draw()
             screen.blit(mii.img, mii.rect.topleft)
             pygame.display.update()
