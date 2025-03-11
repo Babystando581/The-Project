@@ -2,7 +2,7 @@ import pygame
 import sys
 import random
 from controls import mapper, setter, bodge
-from gravity import air_time, jumping_bodge
+from gravity import air_time, grounded_check, jump_start
 
 size = [1280, 720]
 
@@ -61,20 +61,17 @@ class Character(pygame.sprite.Sprite):
     def update(self):
         if pygame.Rect.colliderect(self.rect, floor.rect) is True:
             self.y_speed = 0
-            jumping_bodge(True)
-            mii.rect.bottom = size[1] - floor.dimensions[1]
-            mii.y_movement[0] = False
-        else:
-            self.y_speed = ((self.y_movement[1] - self.y_movement[0]) * 15) + (0.8 * (air_time(timer))) ** 1.8
-
+            grounded_check(True)
+            self.rect.bottom = size[1] - floor.dimensions[1]
+            self.y_movement[0] = False
         if pygame.Rect.colliderect(self.rect, test_platform.rect) is True:
-            jumping_bodge(True)
             self.y_speed = 0
-            mii.rect.bottom = size[1] - test_platform.rect.top
-            print('a')
+            grounded_check(True)
+            mii.rect.bottom = test_platform.coords[1]
             mii.y_movement[0] = False
         else:
-            self.y_speed = ((self.y_movement[1] - self.y_movement[0]) * 15) + (0.8 * (air_time(timer))) ** 1.8
+            grounded_check(False)
+        self.y_speed = ((self.y_movement[1] - self.y_movement[0]) * 15) + (0.8 * (air_time(timer))) ** 1.8
         self.rect.move_ip(self.x_speed, self.y_speed)
 
     def draw(self):
@@ -154,19 +151,8 @@ class Game:
                     mii.collide(sprite)
 
             timer += 0.2
-            if pygame.Rect.colliderect(mii.rect, floor.rect) is True:
-                mii.y_speed = 0
-            else:
-                mii.y_speed = ((mii.y_movement[1] - mii.y_movement[0]) * 15) + (0.8 * (air_time(timer))) ** 1.8
             screen.fill(backgroundcolour)
             mii.update()
-
-            if pygame.Rect.colliderect(mii.rect, floor.rect) is True:
-                jumping_bodge(True)
-                mii.rect.bottom = size[1] - floor.dimensions[1]
-                mii.y_movement[0] = False
-            else:
-                jumping_bodge(False)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
@@ -188,12 +174,11 @@ class Game:
                         pygame.quit()
                         sys.exit()
                     if event.key == pygame.K_s:
-                        self.img = pygame.transform.scale_by(self.img, 1.2)
-                        self.rect.width *= 1.2
-                        self.rect.height *= 1.2
-                        self.rect.bottom = size[1] - floor.dimensions[1]
+                        mii.img = pygame.transform.scale_by(mii.img, 1.2)
+                        mii.rect.width *= 1.2
+                        mii.rect.height *= 1.2
+                        mii.rect.bottom = size[1] - floor.dimensions[1]
                 if event.type == pygame.KEYUP:
-                    # print('Up:', event.key)
                     if event.key == mapper('up') and pygame.Rect.colliderect(mii.rect, floor.rect) is True:
                         mii.move('up', False)
                     if event.key == mapper('down'):
@@ -201,12 +186,11 @@ class Game:
                     if event.key == mapper('left'):
                         mii.move('left', False)
                     if event.key == mapper('right'):
-                        mii.move('right',False)
+                        mii.move('right', False)
             mii.rect.clamp_ip(self.background.get_rect())
             solid_group.draw()
             screen.blit(mii.img, mii.rect.topleft)
             pygame.display.update()
             self.clock.tick(60)
-
 
 Game().run()

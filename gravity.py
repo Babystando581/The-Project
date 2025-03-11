@@ -1,5 +1,3 @@
-import time
-import asyncio
 import tracemalloc
 
 tracemalloc.start()
@@ -17,12 +15,7 @@ def air_time(timer):
     return timer - jump_start
 
 
-def jumping_bodge(x):
+def grounded_check(x):
     global on_ground
     on_ground = x
 
-# async def wait(s):
-#    await asyncio.sleep(s)
-#    print(s)
-
-# print(y := 2 * (a := 5 * (c := 5)))
