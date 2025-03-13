@@ -59,20 +59,9 @@ class Character(pygame.sprite.Sprite):
         self.y_speed = 0
 
     def update(self):
-        if pygame.Rect.colliderect(self.rect, floor.rect) is True:
-            self.y_speed = 0
-            grounded_check(True)
-            self.rect.bottom = size[1] - floor.dimensions[1]
-            self.y_movement[0] = False
-        if pygame.Rect.colliderect(self.rect, test_platform.rect) is True:
-            self.y_speed = 0
-            grounded_check(True)
-            mii.rect.bottom = test_platform.coords[1]
-            mii.y_movement[0] = False
-        else:
-            grounded_check(False)
         self.y_speed = ((self.y_movement[1] - self.y_movement[0]) * 15) + (0.8 * (air_time(timer))) ** 1.8
         self.rect.move_ip(self.x_speed, self.y_speed)
+        print(self.rect)
 
     def draw(self):
         screen.blit(self.img, self.rect.topleft)
@@ -103,10 +92,12 @@ class Human(Character):
                 self.x_speed -= 5
 
     def collide(self, collided_sprite: Block):
-        if 0 <= self.rect.bottom - collided_sprite.rect.top <= 0.15 * self.rect.height:
+        if 0 <= self.rect.bottom - collided_sprite.rect.top <= 2 * self.rect.height:
             self.rect.bottom = collided_sprite.rect.top
+
         else:
-            self.x_speed = 0
+            ...
+
 
 
 class Player(Human):
@@ -146,7 +137,7 @@ class Game:
         print('WOAH', backgroundcolour := (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)))
 
         while True:
-            if (collision := pygame.sprite.spritecollide(mii, solid_group, dokill=False)) is True:
+            if collision := pygame.sprite.spritecollide(mii, solid_group, dokill=False):
                 for sprite in collision:
                     mii.collide(sprite)
 
@@ -159,7 +150,6 @@ class Game:
                     sys.exit()
                 if event.type == pygame.KEYDOWN:
                     setter('move_up', event)
-                    # print('Down:', event.key)
                     if event.key == mapper('up'):
                         mii.move('up', True)
                     if event.key == mapper('down'):
@@ -189,8 +179,10 @@ class Game:
                         mii.move('right', False)
             mii.rect.clamp_ip(self.background.get_rect())
             solid_group.draw()
+            print(mii.rect_pos)
             screen.blit(mii.img, mii.rect.topleft)
             pygame.display.update()
             self.clock.tick(60)
+
 
 Game().run()
