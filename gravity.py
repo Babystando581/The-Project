@@ -10,6 +10,7 @@ jump_start = 0
 def air_time(timer):
     global jump_start
     if on_ground is True:
+        print('help')
         jump_start = timer
 
     return timer - jump_start

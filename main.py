@@ -62,7 +62,8 @@ class Character(pygame.sprite.Sprite):
         self.y_speed = 0
 
     def update(self):
-        self.y_speed = ((self.y_movement[1] - self.y_movement[0]) * 15) + (0.8 * (air_time(timer))) ** 1.8
+        global timer
+        self.y_speed = (self.y_movement[1] - self.y_movement[0]) * 15 + (0.8 * air_time(timer)) ** 1.8
         self.rect.move_ip(self.x_speed, self.y_speed)
 
     def draw(self):
@@ -94,12 +95,12 @@ class Human(Character):
                 self.x_speed -= 5
 
     def collide(self, collided_sprite: Block):
-        if 0 <= self.rect.bottom - collided_sprite.rect.top <= 2 * self.rect.height:
+        if 0 <= self.rect.bottom - collided_sprite.rect.top <= 0.15 * self.rect.height:
             self.rect.bottom = collided_sprite.rect.top
 
         else:
-            self.x_speed = 0
-            print('broke')
+            self.move('left',False)
+            self.move('right',False)
 
 
 class Player(Human):
@@ -115,7 +116,7 @@ floor = Block((0, size[1] - 30), (size[0], 30), None, (255, 255, 255))
 
 solid_group.add(floor)
 
-test_platform = Block((0.6*size[0], 0.75*size[1]), (200, 50), None, (100, 100, 100))
+test_platform = Block((0.6*size[0], 0.65*size[1]), (200, 50), None, (100, 100, 100))
 
 solid_group.add(test_platform)
 
@@ -139,19 +140,21 @@ class Game:
         print('WOAH', backgroundcolour := (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)))
 
         while True:
+            mii.update()
             if collision := pygame.sprite.spritecollide(mii, solid_group, dokill=False):
+                grounded_check(True)
                 for sprite in collision:
                     mii.collide(sprite)
-
+            else:
+                grounded_check(False)
             timer += 0.2
             screen.fill(backgroundcolour)
-            mii.update()
             for event in pygame.event.get():
                 if event.type == pygame.VIDEORESIZE:
                     print('a')
-                    print(floor.dimensions)
+                    print(floor.rect.bottom)
                     size = screen.get_size()
-                    print(floor.dimensions)
+                    print(floor.rect.bottom)
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
@@ -175,8 +178,11 @@ class Game:
                         mii.rect.width *= 1.2
                         mii.rect.height *= 1.2
                         mii.rect.bottom = size[1] - floor.dimensions[1]
+                    if event.key == pygame.K_f:
+                        floor.rect.bottom -= 10
+                        print(floor.rect.bottom)
                 if event.type == pygame.KEYUP:
-                    if event.key == mapper('up') and pygame.Rect.colliderect(mii.rect, floor.rect) is True:
+                    if event.key == mapper('up') and pygame.sprite.spritecollide(mii, solid_group, dokill=False) is True:
                         mii.move('up', False)
                     if event.key == mapper('down'):
                         mii.move('down', False)
@@ -184,10 +190,12 @@ class Game:
                         mii.move('left', False)
                     if event.key == mapper('right'):
                         mii.move('right', False)
+
             mii.rect.clamp_ip(self.background.get_rect())
             solid_group.draw()
             screen.blit(mii.img, mii.rect.topleft)
             pygame.display.update()
+            print(mii.y_speed == 0)
             self.clock.tick(60)
 
 
