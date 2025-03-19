@@ -4,13 +4,16 @@ import random
 from controls import mapper, setter, bodge
 from gravity import air_time, grounded_check, jump_start
 
-size = [1280, 720]
+pygame.init()
+
+print(pygame.display.get_desktop_sizes()[0])
+
+size = [round(0.75 * pygame.display.get_desktop_sizes()[0][0]),
+        round(0.75 * pygame.display.get_desktop_sizes()[0][1])]
 
 timer = 0
 
-pygame.init()
-
-screen = pygame.display.set_mode(size)
+screen = pygame.display.set_mode(size, pygame.RESIZABLE)
 
 
 class Block(pygame.sprite.Sprite):
@@ -61,7 +64,6 @@ class Character(pygame.sprite.Sprite):
     def update(self):
         self.y_speed = ((self.y_movement[1] - self.y_movement[0]) * 15) + (0.8 * (air_time(timer))) ** 1.8
         self.rect.move_ip(self.x_speed, self.y_speed)
-        print(self.rect)
 
     def draw(self):
         screen.blit(self.img, self.rect.topleft)
@@ -96,8 +98,8 @@ class Human(Character):
             self.rect.bottom = collided_sprite.rect.top
 
         else:
-            ...
-
+            self.x_speed = 0
+            print('broke')
 
 
 class Player(Human):
@@ -109,11 +111,11 @@ mii = Human([160, 260], pygame.image.load('data/images/sample2.png').convert_alp
 
 solid_group = EntityGroup()
 
-floor = Block((0, 720 - 30), (1280, 30), None, (255, 255, 255))
+floor = Block((0, size[1] - 30), (size[0], 30), None, (255, 255, 255))
 
 solid_group.add(floor)
 
-test_platform = Block((1000, 500), (200, 50), None, (100, 100, 100))
+test_platform = Block((0.6*size[0], 0.75*size[1]), (200, 50), None, (100, 100, 100))
 
 solid_group.add(test_platform)
 
@@ -145,6 +147,11 @@ class Game:
             screen.fill(backgroundcolour)
             mii.update()
             for event in pygame.event.get():
+                if event.type == pygame.VIDEORESIZE:
+                    print('a')
+                    print(floor.dimensions)
+                    size = screen.get_size()
+                    print(floor.dimensions)
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
@@ -179,7 +186,6 @@ class Game:
                         mii.move('right', False)
             mii.rect.clamp_ip(self.background.get_rect())
             solid_group.draw()
-            print(mii.rect_pos)
             screen.blit(mii.img, mii.rect.topleft)
             pygame.display.update()
             self.clock.tick(60)
