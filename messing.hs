@@ -1,1 +1,1 @@
-printStrln('a')
+main = printStrln(5)
