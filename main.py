@@ -8,8 +8,7 @@ pygame.init()
 
 print(pygame.display.get_desktop_sizes()[0])
 
-size = [round(0.75 * pygame.display.get_desktop_sizes()[0][0]),
-        round(0.75 * pygame.display.get_desktop_sizes()[0][1])]
+size = round(0.75 * pygame.display.Info().current_w), round(0.75 * pygame.display.Info().current_h)
 
 timer = 0
 
@@ -17,10 +16,11 @@ screen = pygame.display.set_mode(size, pygame.RESIZABLE)
 
 
 class Block(pygame.sprite.Sprite):
-    def __init__(self, coords, dimensions=None, image=None, colour=None):
+    def __init__(self, coords, dimensions=None, image=None, colour=None,special=None):
         super().__init__()
         self.coords = coords
         self.rect = pygame.Rect(coords, dimensions)
+        self.special = special
         if image:
             self.surf = pygame.image.load(image).convert()
         else:
@@ -64,6 +64,7 @@ class Character(pygame.sprite.Sprite):
     def update(self):
         global timer
         self.y_speed = (self.y_movement[1] - self.y_movement[0]) * 15 + (0.8 * air_time(timer)) ** 1.8
+        self.x_speed = (self.x_movement[1] - self.x_movement[0]) * 5
         self.rect.move_ip(self.x_speed, self.y_speed)
 
     def draw(self):
@@ -81,26 +82,30 @@ class Human(Character):
             if movement == 'down':
                 self.y_movement[1] = True
             if movement == 'left':
-                self.x_speed -= 5
+                self.x_movement[0] = True
             if movement == 'right':
-                self.x_speed += 5
+                self.x_movement[1] = True
         if start is False:
             if movement == 'up':
                 self.y_movement[0] = False
             if movement == 'down':
                 self.y_movement[1] = False
             if movement == 'left':
-                self.x_speed += 5
+                self.x_movement[0] = False
             if movement == 'right':
-                self.x_speed -= 5
+                self.x_movement[1] = False
 
     def collide(self, collided_sprite: Block):
-        if 0 <= self.rect.bottom - collided_sprite.rect.top <= 0.15 * self.rect.height:
+        if collided_sprite.special == 'end':
+            print('YOU WIN!!!!!1!!1!!11!!')
+            pygame.quit()
+            sys.exit()
+        if 0 <= self.rect.bottom - collided_sprite.rect.top <= 0.5 * self.rect.height:
             self.rect.bottom = collided_sprite.rect.top
-
         else:
-            self.move('left',False)
-            self.move('right',False)
+            self.move('left', False)
+            self.move('right', False)
+            self.x_speed = 0
 
 
 class Player(Human):
@@ -116,9 +121,21 @@ floor = Block((0, size[1] - 30), (size[0], 30), None, (255, 255, 255))
 
 solid_group.add(floor)
 
-test_platform = Block((0.6*size[0], 0.65*size[1]), (200, 50), None, (100, 100, 100))
+test_platform_1 = Block((0.2 * size[0], 0.85 * size[1]), (200, 50), None, (100, 100, 100),None)
 
-solid_group.add(test_platform)
+solid_group.add(test_platform_1)
+
+test_platform_2 = Block((0.4 * size[0], 0.8 * size[1]), (200, 50), None, (100, 100, 100),None)
+
+solid_group.add(test_platform_2)
+
+test_platform_3 = Block((0.6 * size[0], 0.75 * size[1]), (200, 50), None, (100, 100, 100),None)
+
+solid_group.add(test_platform_3)
+
+goal = Block((size[0]-50,size[1]-50),(50,50),None,(250,0,0),'end')
+
+solid_group.add(goal)
 
 
 class Game:
@@ -143,6 +160,7 @@ class Game:
             mii.update()
             if collision := pygame.sprite.spritecollide(mii, solid_group, dokill=False):
                 grounded_check(True)
+                mii.move('up', False)
                 for sprite in collision:
                     mii.collide(sprite)
             else:
@@ -151,7 +169,7 @@ class Game:
             screen.fill(backgroundcolour)
             for event in pygame.event.get():
                 if event.type == pygame.VIDEORESIZE:
-                    print('a')
+                    print('')
                     print(floor.rect.bottom)
                     size = screen.get_size()
                     print(floor.rect.bottom)
@@ -195,7 +213,6 @@ class Game:
             solid_group.draw()
             screen.blit(mii.img, mii.rect.topleft)
             pygame.display.update()
-            print(mii.y_speed == 0)
             self.clock.tick(60)
 
 
