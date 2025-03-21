@@ -3,6 +3,8 @@ import sys
 import random
 from controls import mapper, setter, bodge
 from gravity import air_time, grounded_check, jump_start
+from blocks import Block, EntityGroup
+from globals import all_globals
 
 pygame.init()
 
@@ -12,46 +14,17 @@ size = round(0.75 * pygame.display.Info().current_w), round(0.75 * pygame.displa
 
 timer = 0
 
-screen = pygame.display.set_mode(size, pygame.RESIZABLE)
-
-
-class Block(pygame.sprite.Sprite):
-    def __init__(self, coords, dimensions=None, image=None, colour=None,special=None):
-        super().__init__()
-        self.coords = coords
-        self.rect = pygame.Rect(coords, dimensions)
-        self.special = special
-        if image:
-            self.surf = pygame.image.load(image).convert()
-        else:
-            self.dimensions = dimensions
-            self.surf = pygame.Surface(self.dimensions)
-            if colour:
-                self.surf.fill(colour)
-            else:
-                self.surf.blit(
-                    pygame.image.load('data/images/source_mod.png').subsurface(pygame.Rect((0, 0), self.dimensions)),
-                    (0, 0))
-
-    def draw(self):
-        screen.blit(self.surf, self.coords)
-
-
-class EntityGroup(pygame.sprite.Group):
-    def __init__(self):
-        super().__init__()
-
-    def draw(self):
-        for sprite in self.sprites():
-            sprite.draw()
+all_globals['screen'] = pygame.display.set_mode(size, pygame.RESIZABLE)
 
 
 class Character(pygame.sprite.Sprite):
-    def __init__(self, coords, img):
+    def __init__(self, coords, img: pygame.image):
         super().__init__()
         self.coords = coords
         self.img = img
+        self.clone = pygame.image.load('data/images/sample2_2.png')
         self.rect = self.img.get_rect()
+        self.clone_rect = self.clone.get_rect()
         self.rect_pos = coords
         self.x_movement = [False, False]
 
@@ -65,10 +38,12 @@ class Character(pygame.sprite.Sprite):
         global timer
         self.y_speed = (self.y_movement[1] - self.y_movement[0]) * 15 + (0.8 * air_time(timer)) ** 1.8
         self.x_speed = (self.x_movement[1] - self.x_movement[0]) * 5
-        self.rect.move_ip(self.x_speed, self.y_speed)
+        self.clone_rect.move_ip(self.x_speed, self.y_speed)
+        if pygame.sprite.spritecollide(mii.clone_rect, solid_group, dokill=False) is False:
+            self.rect.move_ip(self.x_speed, self.y_speed)
 
     def draw(self):
-        screen.blit(self.img, self.rect.topleft)
+        all_globals['screen'].blit(self.img, self.rect.topleft)
 
 
 class Human(Character):
@@ -109,11 +84,11 @@ class Human(Character):
 
 
 class Player(Human):
-    def __init__(self, coords, img):
+    def init__(self, coords, img):
         super().__init__(coords, img)
 
 
-mii = Human([160, 260], pygame.image.load('data/images/sample2.png').convert_alpha())
+mii = Human([160, 260], pygame.image.load('data/images/sample2.png'))
 
 solid_group = EntityGroup()
 
@@ -121,19 +96,19 @@ floor = Block((0, size[1] - 30), (size[0], 30), None, (255, 255, 255))
 
 solid_group.add(floor)
 
-test_platform_1 = Block((0.2 * size[0], 0.85 * size[1]), (200, 50), None, (100, 100, 100),None)
+test_platform_1 = Block((0.2 * size[0], 0.85 * size[1]), (200, 50), None, (100, 100, 100), None)
 
 solid_group.add(test_platform_1)
 
-test_platform_2 = Block((0.4 * size[0], 0.8 * size[1]), (200, 50), None, (100, 100, 100),None)
+test_platform_2 = Block((0.4 * size[0], 0.8 * size[1]), (200, 50), None, (100, 100, 100), None)
 
 solid_group.add(test_platform_2)
 
-test_platform_3 = Block((0.6 * size[0], 0.75 * size[1]), (200, 50), None, (100, 100, 100),None)
+test_platform_3 = Block((0.6 * size[0], 0.75 * size[1]), (200, 50), None, (100, 100, 100), None)
 
 solid_group.add(test_platform_3)
 
-goal = Block((size[0]-50,size[1]-50),(50,50),None,(250,0,0),'end')
+goal = Block((size[0] - 50, size[1] - (50 + floor.dimensions[1])), (50, 50), None, (250, 0, 0), 'end')
 
 solid_group.add(goal)
 
@@ -166,12 +141,12 @@ class Game:
             else:
                 grounded_check(False)
             timer += 0.2
-            screen.fill(backgroundcolour)
+            all_globals['screen'].fill(backgroundcolour)
             for event in pygame.event.get():
                 if event.type == pygame.VIDEORESIZE:
                     print('')
                     print(floor.rect.bottom)
-                    size = screen.get_size()
+                    size = all_globals['screen'].get_size()
                     print(floor.rect.bottom)
                 if event.type == pygame.QUIT:
                     pygame.quit()
@@ -200,7 +175,8 @@ class Game:
                         floor.rect.bottom -= 10
                         print(floor.rect.bottom)
                 if event.type == pygame.KEYUP:
-                    if event.key == mapper('up') and pygame.sprite.spritecollide(mii, solid_group, dokill=False) is True:
+                    if event.key == mapper('up') and pygame.sprite.spritecollide(mii, solid_group,
+                                                                                 dokill=False) is True:
                         mii.move('up', False)
                     if event.key == mapper('down'):
                         mii.move('down', False)
@@ -208,10 +184,10 @@ class Game:
                         mii.move('left', False)
                     if event.key == mapper('right'):
                         mii.move('right', False)
-
+            print(mii.rect.topleft, mii.clone_rect.topleft)
             mii.rect.clamp_ip(self.background.get_rect())
             solid_group.draw()
-            screen.blit(mii.img, mii.rect.topleft)
+            all_globals['screen'].blit(mii.img, mii.rect.topleft)
             pygame.display.update()
             self.clock.tick(60)
 
