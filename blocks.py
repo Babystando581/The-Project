@@ -1,6 +1,7 @@
 import pygame
 from globals import all_globals
 
+
 class Block(pygame.sprite.Sprite):
     def __init__(self, coords, dimensions=None, image=None, colour=None, special=None):
         super().__init__()

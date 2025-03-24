@@ -22,9 +22,7 @@ class Character(pygame.sprite.Sprite):
         super().__init__()
         self.coords = coords
         self.img = img
-        self.clone = pygame.image.load('data/images/sample2_2.png')
         self.rect = self.img.get_rect()
-        self.clone_rect = self.clone.get_rect()
         self.rect_pos = coords
         self.x_movement = [False, False]
 
@@ -38,9 +36,10 @@ class Character(pygame.sprite.Sprite):
         global timer
         self.y_speed = (self.y_movement[1] - self.y_movement[0]) * 15 + (0.8 * air_time(timer)) ** 1.8
         self.x_speed = (self.x_movement[1] - self.x_movement[0]) * 5
-        self.clone_rect.move_ip(self.x_speed, self.y_speed)
-        if pygame.sprite.spritecollide(mii.clone_rect, solid_group, dokill=False) is False:
-            self.rect.move_ip(self.x_speed, self.y_speed)
+        old_pos = self.rect.topleft
+        self.rect.move_ip(self.x_speed, self.y_speed)
+        if pygame.sprite.spritecollide(self.rect,solid_group,dokill=False) is True:
+            self.rect.topleft = old_pos
 
     def draw(self):
         all_globals['screen'].blit(self.img, self.rect.topleft)
@@ -184,8 +183,9 @@ class Game:
                         mii.move('left', False)
                     if event.key == mapper('right'):
                         mii.move('right', False)
-            print(mii.rect.topleft, mii.clone_rect.topleft)
-            mii.rect.clamp_ip(self.background.get_rect())
+            if timer % 0.2 == 0:
+                print(timer, 'sdsdf')
+                goal.rect.bottom -= 25
             solid_group.draw()
             all_globals['screen'].blit(mii.img, mii.rect.topleft)
             pygame.display.update()
