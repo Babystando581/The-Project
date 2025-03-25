@@ -38,8 +38,14 @@ class Character(pygame.sprite.Sprite):
         self.x_speed = (self.x_movement[1] - self.x_movement[0]) * 5
         old_pos = self.rect.topleft
         self.rect.move_ip(self.x_speed, self.y_speed)
-        if pygame.sprite.spritecollide(self.rect,solid_group,dokill=False) is True:
+        if collision := pygame.sprite.spritecollide(self, solid_group, dokill=False) is True:
+            for sprite in collision:
+                print(sprite)
+            grounded_check(True)
+            print(self.rect.topleft, old_pos)
             self.rect.topleft = old_pos
+        else:
+            grounded_check(False)
 
     def draw(self):
         all_globals['screen'].blit(self.img, self.rect.topleft)
@@ -143,10 +149,7 @@ class Game:
             all_globals['screen'].fill(backgroundcolour)
             for event in pygame.event.get():
                 if event.type == pygame.VIDEORESIZE:
-                    print('')
-                    print(floor.rect.bottom)
                     size = all_globals['screen'].get_size()
-                    print(floor.rect.bottom)
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
@@ -170,9 +173,6 @@ class Game:
                         mii.rect.width *= 1.2
                         mii.rect.height *= 1.2
                         mii.rect.bottom = size[1] - floor.dimensions[1]
-                    if event.key == pygame.K_f:
-                        floor.rect.bottom -= 10
-                        print(floor.rect.bottom)
                 if event.type == pygame.KEYUP:
                     if event.key == mapper('up') and pygame.sprite.spritecollide(mii, solid_group,
                                                                                  dokill=False) is True:
@@ -183,9 +183,6 @@ class Game:
                         mii.move('left', False)
                     if event.key == mapper('right'):
                         mii.move('right', False)
-            if timer % 0.2 == 0:
-                print(timer, 'sdsdf')
-                goal.rect.bottom -= 25
             solid_group.draw()
             all_globals['screen'].blit(mii.img, mii.rect.topleft)
             pygame.display.update()
