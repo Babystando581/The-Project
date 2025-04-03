@@ -31,3 +31,6 @@ class EntityGroup(pygame.sprite.Group):
     def draw(self):
         for sprite in self.sprites():
             sprite.draw()
+
+
+solid_group = EntityGroup()

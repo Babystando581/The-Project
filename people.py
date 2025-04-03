@@ -4,6 +4,7 @@ import pygame
 
 from globals import all_globals
 from gravity import air_time, grounded_check
+from blocks import solid_group
 
 
 class Character(pygame.sprite.Sprite):
@@ -22,37 +23,30 @@ class Character(pygame.sprite.Sprite):
         self.y_speed = 0
 
     def update(self):
-        global timer
-        print(self.rect, floor.rect)
-        if (0.5 * air_time(timer)) ** 1.6 >= 35:
+        if (0.5 * air_time(pygame.time.get_ticks())) ** 1.6 >= 35:
             self.gravity = 35
         else:
-            self.gravity = (0.8 * air_time(timer)) ** 1.8
+            self.gravity = (000000000.8 * air_time(pygame.time.get_ticks())) ** 1.8
         self.y_speed = (self.y_movement[1] - self.y_movement[0]) * 15 + self.gravity
         self.x_speed = (self.x_movement[1] - self.x_movement[0]) * 5
         old_pos = self.rect.topleft
         self.rect.move_ip(self.x_speed, self.y_speed)
-        if collision := pygame.sprite.spritecollide(self, solid_group, dokill=False) is True:
-            print('on the ground')
-            for sprite in collision:
-                if sprite.special == 'end':
-                    print('YOU WIN!!!!!1!!1!!11!!')
-                    pygame.quit()
-                    sys.exit()
-                if 0 <= self.rect.bottom - sprite.rect.top <= 0.5 * self.rect.height:
-                    self.rect.bottom = sprite.rect.top
-                else:
-                    self.move('left', False)
-                    self.move('right', False)
-                    self.x_speed = 0
+        collision = pygame.sprite.spritecollide(self, solid_group, dokill=False)
+        for sprite in collision:
+            if sprite.special == 'end':
+                print('YOU WIN!!!!!1!!1!!11!!')
+                pygame.quit()
+                sys.exit()
+            if 0 <= self.rect.bottom - sprite.rect.top <= 0.5 * self.rect.height:
+                self.rect.bottom = sprite.rect.top
 
             grounded_check(True)
-            print('here!', self.rect.topleft, old_pos)
             self.rect.topleft = old_pos
             # print('invalid movement')
         else:
             grounded_check(False)
-            # print('valid movement')
+            #print('valid movement')
+        self.rect.clamp_ip(all_globals['screen_rect'])
 
     def draw(self):
         all_globals['screen'].blit(self.img, self.rect.topleft)
@@ -98,4 +92,3 @@ class Human(Character):
 class Player(Human):
     def init__(self, coords, img):
         super().__init__(coords, img)
-
