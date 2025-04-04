@@ -5,6 +5,7 @@ import pygame
 from globals import all_globals
 from gravity import air_time, grounded_check
 from blocks import solid_group
+from blocks_storage import *
 
 
 class Character(pygame.sprite.Sprite):
@@ -23,29 +24,32 @@ class Character(pygame.sprite.Sprite):
         self.y_speed = 0
 
     def update(self):
-        if (0.5 * air_time(pygame.time.get_ticks())) ** 1.6 >= 35:
+        if (0.0008 * air_time(pygame.time.get_ticks())) ** 1.6 >= 35:
             self.gravity = 35
         else:
-            self.gravity = (000000000.8 * air_time(pygame.time.get_ticks())) ** 1.8
+            self.gravity = (0.0008 * air_time(pygame.time.get_ticks())) ** 1.8
         self.y_speed = (self.y_movement[1] - self.y_movement[0]) * 15 + self.gravity
         self.x_speed = (self.x_movement[1] - self.x_movement[0]) * 5
         old_pos = self.rect.topleft
         self.rect.move_ip(self.x_speed, self.y_speed)
         collision = pygame.sprite.spritecollide(self, solid_group, dokill=False)
+        if collision is True:
+            grounded_check(True)
+        else:
+            grounded_check(False)
+
         for sprite in collision:
             if sprite.special == 'end':
                 print('YOU WIN!!!!!1!!1!!11!!')
                 pygame.quit()
                 sys.exit()
-            if 0 <= self.rect.bottom - sprite.rect.top <= 0.5 * self.rect.height:
-                self.rect.bottom = sprite.rect.top
-
-            grounded_check(True)
-            self.rect.topleft = old_pos
+            if self.rect.bottom <= sprite.rect.top:
+                print('colliding')
+                self.rect.topleft = old_pos
             # print('invalid movement')
         else:
-            grounded_check(False)
-            #print('valid movement')
+            ...
+            # print('valid movement')
         self.rect.clamp_ip(all_globals['screen_rect'])
 
     def draw(self):

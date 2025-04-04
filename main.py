@@ -7,7 +7,6 @@ from gravity import air_time, grounded_check, on_ground
 from blocks import Block, EntityGroup, solid_group
 from globals import all_globals
 from blocks_storage import *
-
 from people import *
 
 pygame.init()

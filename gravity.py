@@ -2,6 +2,7 @@ on_ground = False
 
 jump_start = 0
 
+
 def air_time(timer):
     global jump_start
     if on_ground is True:
@@ -12,4 +13,3 @@ def air_time(timer):
 def grounded_check(x):
     global on_ground
     on_ground = x
-    print(x)
