@@ -22,21 +22,22 @@ class Character(pygame.sprite.Sprite):
         self.x_speed = 0
 
         self.y_speed = 0
+        self.grounded = True
 
     def update(self):
-        if (0.0008 * air_time(pygame.time.get_ticks())) ** 1.6 >= 35:
+        if (0.0008 * air_time(pygame.time.get_ticks(),self.grounded)) ** 1.6 >= 35:
             self.gravity = 35
         else:
-            self.gravity = (0.0008 * air_time(pygame.time.get_ticks())) ** 1.8
+            self.gravity = (0.0008 * air_time(pygame.time.get_ticks(),self.grounded)) ** 1.8
         self.y_speed = (self.y_movement[1] - self.y_movement[0]) * 15 + self.gravity
         self.x_speed = (self.x_movement[1] - self.x_movement[0]) * 5
         old_pos = self.rect.topleft
         self.rect.move_ip(self.x_speed, self.y_speed)
         collision = pygame.sprite.spritecollide(self, solid_group, dokill=False)
         if collision is True:
-            grounded_check(True)
+            self.grounded = True
         else:
-            grounded_check(False)
+            self.grounded = False
 
         for sprite in collision:
             if sprite.special == 'end':
