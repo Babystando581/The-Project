@@ -19,6 +19,7 @@ all_globals['screen_rect'] = all_globals['screen'].get_rect()
 
 mii = Human([160, 260], pygame.image.load('data/images/sample2.png'))
 
+all_globals['game_framerate'] = 144
 
 class Game:
     def __init__(self):
@@ -77,7 +78,7 @@ class Game:
             solid_group.draw()
             all_globals['screen'].blit(mii.img, mii.rect.topleft)
             pygame.display.update()
-            all_globals['dt'] = self.clock.tick(60)
+            all_globals['dt'] = self.clock.tick(all_globals['game_framerate'])
 
 
 Game().run()
