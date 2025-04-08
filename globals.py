@@ -1,6 +1,6 @@
 import pygame
 
-all_globals = {
+a_g = {
     'screen': ...,
     'screen_rect': ...,
     'timer': 0,

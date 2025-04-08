@@ -1,5 +1,5 @@
 import pygame
-from globals import all_globals
+from globals import a_g
 
 
 class Block(pygame.sprite.Sprite):
@@ -21,7 +21,7 @@ class Block(pygame.sprite.Sprite):
                     (0, 0))
 
     def draw(self):
-        all_globals['screen'].blit(self.surf, self.coords)
+        a_g['screen'].blit(self.surf, self.coords)
 
 
 class EntityGroup(pygame.sprite.Group):

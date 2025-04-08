@@ -5,21 +5,23 @@ import random
 from controls import mapper, setter, bodge
 from gravity import air_time, grounded_check, on_ground
 from blocks import Block, EntityGroup, solid_group
-from globals import all_globals
+from globals import a_g
 from blocks_storage import *
 from people import *
 
 pygame.init()
 
-all_globals['size'] = round(0.75 * pygame.display.Info().current_w), round(0.75 * pygame.display.Info().current_h)
+a_g['size'] = round(0.75 * pygame.display.Info().current_w), round(0.75 * pygame.display.Info().current_h)
 
-all_globals['screen'] = pygame.display.set_mode(all_globals['size'], pygame.RESIZABLE)
+a_g['screen'] = pygame.display.set_mode(a_g['size'], pygame.RESIZABLE)
 
-all_globals['screen_rect'] = all_globals['screen'].get_rect()
+a_g['screen_rect'] = a_g['screen'].get_rect()
 
 mii = Human([160, 260], pygame.image.load('data/images/sample2.png'))
 
-all_globals['game_framerate'] = 144
+a_g['game_framerate'] = 144
+
+prev_time = pygame.time.get_ticks()
 
 class Game:
     def __init__(self):
@@ -27,21 +29,25 @@ class Game:
 
         self.clock = pygame.time.Clock()
 
-        self.background = pygame.Surface(all_globals['size'])
+        self.background = pygame.Surface(a_g['size'])
 
         print(pygame.display.Info())
 
         self.angle = 0
 
     def run(self):
+        global prev_time
         print('WOAH', backgroundcolour := (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)))
 
         while True:
             mii.update()
-            all_globals['screen'].fill(backgroundcolour)
+            now_time = pygame.time.get_ticks()
+            a_g['dt'] = (now_time - prev_time)/1000
+            prev_time = now_time
+            a_g['screen'].fill(backgroundcolour)
             for event in pygame.event.get():
                 if event.type == pygame.VIDEORESIZE:
-                    size = all_globals['screen'].get_size()
+                    size = a_g['screen'].get_size()
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
@@ -64,7 +70,7 @@ class Game:
                         mii.img = pygame.transform.scale_by(mii.img, 1.2)
                         mii.rect.width *= 1.2
                         mii.rect.height *= 1.2
-                        mii.rect.bottom = all_globals['size'][1] - floor.dimensions[1]
+                        mii.rect.bottom = a_g['size'][1] - floor.dimensions[1]
                 if event.type == pygame.KEYUP:
                     if event.key == mapper('up') and pygame.sprite.spritecollide(mii, solid_group,
                                                                                  dokill=False) is True:
@@ -76,9 +82,10 @@ class Game:
                     if event.key == mapper('right'):
                         mii.move('right', False)
             solid_group.draw()
-            all_globals['screen'].blit(mii.img, mii.rect.topleft)
+            a_g['screen'].blit(mii.img, mii.rect.topleft)
             pygame.display.update()
-            all_globals['dt'] = self.clock.tick(all_globals['game_framerate'])
+            print(a_g['dt'])
+            a_g['dt'] = self.clock.tick(a_g['game_framerate'])
 
 
 Game().run()
