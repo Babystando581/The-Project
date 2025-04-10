@@ -3,7 +3,7 @@ pygame.init()
 import sys
 import random
 from controls import mapper, setter, bodge
-from gravity import air_time, grounded_check, on_ground
+from gravity import air_time
 from blocks import Block, EntityGroup, solid_group
 from globals import a_g
 from blocks_storage import *

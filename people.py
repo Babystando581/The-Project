@@ -2,8 +2,8 @@ import sys
 
 import pygame
 
-from globals import a_g
-from gravity import air_time, grounded_check
+from globals import all_globals
+from gravity import air_time
 from blocks import solid_group
 from blocks_storage import *
 
@@ -23,19 +23,19 @@ class Character(pygame.sprite.Sprite):
 
         self.y_speed = 0
         self.grounded = True
+        self.gravity = 0
+
+    def set_speed(self):
+        self.y_speed = (self.y_movement[1] - self.y_movement[0]) * 15
+        self.x_speed = (self.x_movement[1] - self.x_movement[0]) * 5
 
     def update(self):
-        if (0.008 * air_time(pygame.time.get_ticks(), self.grounded)) ** 1.6 >= 35 * a_g['dt']:
-            self.gravity = 35 * a_g['dt']
-        else:
-            self.gravity = ((0.008 * air_time(pygame.time.get_ticks(), self.grounded)) ** 1.8) * a_g['dt']
-        self.y_speed = (self.y_movement[1] - self.y_movement[0]) * 15 * a_g['dt'] + self.gravity
-        self.x_speed = (self.x_movement[1] - self.x_movement[0]) * 5 * a_g['dt']
+        self.set_speed()
         old_pos = self.rect.topleft
         self.rect.move_ip(self.x_speed, self.y_speed)
         collision = pygame.sprite.spritecollide(self, solid_group, dokill=False)
         self.grounded = bool(collision)
-
+        print(self.rect.bottomright[1])
         for sprite in collision:
             if sprite.special == 'end':
                 print('YOU WIN!!!!!1!!1!!11!!')
@@ -47,16 +47,23 @@ class Character(pygame.sprite.Sprite):
         else:
             ...
             # print('valid movement')
-        self.rect.clamp_ip(a_g['screen_rect'])
+        self.rect.clamp_ip(all_globals['screen_rect'])
 
     def draw(self):
-        a_g['screen'].blit(self.img, self.rect.topleft)
+        all_globals['screen'].blit(self.img, self.rect.topleft)
 
 
 class Human(Character):
     def __init__(self, coords, img):
         super().__init__(coords, img)
 
+    def set_speed(self):
+        if (0.008 * air_time(pygame.time.get_ticks(), self.grounded)) ** 1.6 >= 35:
+            self.gravity = 35
+        else:
+            self.gravity = (0.008 * air_time(pygame.time.get_ticks(), self.grounded)) ** 1.6
+        self.y_speed = (self.y_movement[1] - self.y_movement[0]) * 15 + self.gravity
+        self.x_speed = (self.x_movement[1] - self.x_movement[0]) * 5
     def move(self, movement, start):
         if start is True:
             if movement == 'up':
