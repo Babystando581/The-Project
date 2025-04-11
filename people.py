@@ -27,8 +27,8 @@ class Character(pygame.sprite.Sprite):
         self.collided = True
 
     def set_speed(self):
-        self.y_speed += (self.y_movement[1] - self.y_movement[0]) * 15
-        self.x_speed += (self.x_movement[1] - self.x_movement[0]) * 5
+        self.y_speed = (self.y_movement[1] - self.y_movement[0]) * 15
+        self.x_speed = (self.x_movement[1] - self.x_movement[0]) * 5
 
     def update(self):
         self.set_speed()
