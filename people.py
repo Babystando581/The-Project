@@ -22,9 +22,9 @@ class Character(pygame.sprite.Sprite):
         self.x_speed = 0
 
         self.y_speed = 0
-        self.grounded = True
+        self.grounded = False
         self.gravity = 0
-        self.collided = True
+        self.collided = False
 
     def set_speed(self):
         self.y_speed = (self.y_movement[1] - self.y_movement[0]) * 15
@@ -34,7 +34,7 @@ class Character(pygame.sprite.Sprite):
         self.set_speed()
         old_pos = self.rect.topleft
         self.rect.move_ip(self.x_speed, self.y_speed)
-        print(self.x_speed,self.y_speed,self.grounded)
+        # print(self.x_speed,self.y_speed,self.grounded)
         collision = pygame.sprite.spritecollide(self, solid_group, dokill=False)
         self.collided = bool(collision)
         for sprite in collision:
@@ -43,16 +43,6 @@ class Character(pygame.sprite.Sprite):
                 print('YOU WIN!!!!!1!!1!!11!!')
                 pygame.quit()
                 sys.exit()
-            if (
-                    sprite.rect.left < self.rect.left < sprite.rect.right or sprite.rect.left < self.rect.right < sprite.rect.right) and (sprite.rect.top <= self.rect.bottom <= (sprite.rect.top + 0.15 * self.rect.height)):
-                self.grounded = True
-            else:
-                print('why')
-                self.grounded = False
-            # print('valid movement')
-            if self.grounded is True:
-                self.y_speed = 0
-        self.rect.clamp_ip(all_globals['screen_rect'])
 
     def draw(self):
         all_globals['screen'].blit(self.img, self.rect.topleft)
@@ -67,7 +57,11 @@ class Human(Character):
             self.gravity = 35
         else:
             self.gravity = (0.008 * air_time(pygame.time.get_ticks(), self.grounded)) ** 1.6
-        self.y_speed = (self.y_movement[1] - self.y_movement[0]) * 15 + self.gravity
+
+        if  self.collided is True:
+            self.y_speed = 0
+        else:
+            self.y_speed = (self.y_movement[1] - self.y_movement[0]) * 15 + self.gravity
         self.x_speed = (self.x_movement[1] - self.x_movement[0]) * 5
 
     def move(self, movement, start):
@@ -89,6 +83,28 @@ class Human(Character):
                 self.x_movement[0] = False
             if movement == 'right':
                 self.x_movement[1] = False
+
+    def update(self):
+        self.set_speed()
+        old_pos = self.rect.topleft
+        self.rect.move_ip(self.x_speed, self.y_speed)
+        collision = pygame.sprite.spritecollide(self, solid_group, dokill=False)
+        self.collided = bool(collision)
+        self.grounded = False
+        for sprite in collision:
+            print(sprite)
+            self.rect.topleft = old_pos
+            if sprite.special == 'end':
+                print('YOU WIN!!!!!1!!1!!11!!')
+                pygame.quit()
+                sys.exit()
+            if (sprite.rect.left <= self.rect.left<= sprite.rect.right or sprite.rect.left <= self.rect.right <= sprite.rect.right):
+                print('should')
+                self.grounded = True
+                self.y_speed = 0
+                print('x collision only')
+        self.rect.clamp_ip(all_globals['screen_rect'])
+        #print('grounded is', self.grounded,'y speed is', self.y_speed,'collision is', self.collided)
 
     # def collide(self, collided_sprite: Block):
     #    if collided_sprite.special == 'end':
