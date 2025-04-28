@@ -23,6 +23,18 @@ all_globals['game_framerate'] = 144
 
 prev_time = pygame.time.get_ticks()
 
+class State:
+    def __init__(self):
+        pygame.display.set_caption("Celeste clone")
+
+        self.clock = pygame.time.Clock()
+
+        self.background = pygame.Surface(all_globals['size'])
+
+        print(pygame.display.Info())
+    def run(self):
+        ...
+
 class Game:
     def __init__(self):
         pygame.display.set_caption("Celeste clone")

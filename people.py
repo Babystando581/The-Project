@@ -58,7 +58,7 @@ class Human(Character):
         else:
             self.gravity = (0.008 * air_time(pygame.time.get_ticks(), self.grounded)) ** 1.6
 
-        if  self.collided is True:
+        if self.collided is True:
             self.y_speed = 0
         else:
             self.y_speed = (self.y_movement[1] - self.y_movement[0]) * 15 + self.gravity
@@ -84,27 +84,40 @@ class Human(Character):
             if movement == 'right':
                 self.x_movement[1] = False
 
+    def check_grounded(self):
+        now_pos = self.rect.topleft
+        self.rect.move_ip(0, 5)
+        if pygame.sprite.spritecollide(self, solid_group, dokill=False) is True:
+            self.grounded = True
+            print('grounded by new function')
+        else:
+            self.grounded = False
+            print('not grounded by new function')
+        self.rect.topleft = now_pos
+
     def update(self):
         self.set_speed()
+        #elf.check_grounded()
         old_pos = self.rect.topleft
         self.rect.move_ip(self.x_speed, self.y_speed)
         collision = pygame.sprite.spritecollide(self, solid_group, dokill=False)
         self.collided = bool(collision)
         self.grounded = False
         for sprite in collision:
-            print(sprite)
+            # print(sprite)
             self.rect.topleft = old_pos
             if sprite.special == 'end':
                 print('YOU WIN!!!!!1!!1!!11!!')
                 pygame.quit()
                 sys.exit()
-            if (sprite.rect.left <= self.rect.left<= sprite.rect.right or sprite.rect.left <= self.rect.right <= sprite.rect.right):
-                print('should')
+            if (
+                    sprite.rect.left <= self.rect.left <= sprite.rect.right or sprite.rect.left <= self.rect.right <= sprite.rect.right):
+                # print('should')
                 self.grounded = True
                 self.y_speed = 0
-                print('x collision only')
+                # print('x collision only')
         self.rect.clamp_ip(all_globals['screen_rect'])
-        #print('grounded is', self.grounded,'y speed is', self.y_speed,'collision is', self.collided)
+        # print('grounded is', self.grounded,'y speed is', self.y_speed,'collision is', self.collided)
 
     # def collide(self, collided_sprite: Block):
     #    if collided_sprite.special == 'end':
