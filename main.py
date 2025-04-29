@@ -95,8 +95,8 @@ class Game:
             solid_group.draw()
             all_globals['screen'].blit(mii.img, mii.rect.topleft)
             pygame.display.update()
-            #print('dt is',all_globals['dt'])
-            all_globals['dt'] = self.clock.tick(all_globals['game_framerate'])
+            time_passed = self.clock.tick(all_globals['game_framerate'])
+            all_globals['dt'] = (time_passed)/6.5
 
 
 Game().run()
