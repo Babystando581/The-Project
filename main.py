@@ -2,7 +2,7 @@ import pygame
 pygame.init()
 import sys
 import random
-from controls import mapper, setter, bodge
+from controls import mapper, setter, rebind
 from gravity import air_time
 from blocks import Block, EntityGroup, solid_group
 from globals import all_globals
@@ -74,7 +74,7 @@ class Game:
                     if event.key == mapper('right'):
                         mii.move('right', True)
                     if event.key == pygame.K_q:
-                        bodge()
+                        rebind()
                     if event.key == pygame.K_END:
                         pygame.quit()
                         sys.exit()
@@ -97,6 +97,7 @@ class Game:
             pygame.display.update()
             time_passed = self.clock.tick(all_globals['game_framerate'])
             all_globals['dt'] = (time_passed)/6.5
+            print('dt is',all_globals['dt'])
 
 
 Game().run()

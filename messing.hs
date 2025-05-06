@@ -1,1 +1,0 @@
-main = printStrln(5)

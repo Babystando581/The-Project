@@ -1,1 +1,0 @@
-printStrln('a')

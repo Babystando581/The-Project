@@ -27,7 +27,7 @@ class Character(pygame.sprite.Sprite):
         self.collided = False
 
     def set_speed(self):
-        self.y_speed = (self.y_movement[1] - self.y_movement[0]) * 15
+        self.y_speed = (self.y_movement[1] - self.y_movement[0]) * 10
         self.x_speed = (self.x_movement[1] - self.x_movement[0]) * 5
 
     def update(self):
@@ -57,7 +57,7 @@ class Human(Character):
         if self.gravity > 25:
             self.gravity = 25
 
-        self.y_speed = (self.y_movement[1] - self.y_movement[0]) * 10 + self.gravity
+        self.y_speed = (self.y_movement[1] - self.y_movement[0]) * 7 + self.gravity
         self.x_speed = (self.x_movement[1] - self.x_movement[0]) * 5
 
     def move(self, movement, start):
@@ -82,7 +82,7 @@ class Human(Character):
     count=0
     def check_grounded(self):
         now_pos = self.rect.topleft
-        self.rect.move_ip(0, 5)
+        self.rect.move_ip(0, 1)
         if pygame.sprite.spritecollide(self, solid_group, dokill=False) is True:
             self.grounded = True
             print('grounded by new function')

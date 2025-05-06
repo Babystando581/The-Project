@@ -19,3 +19,7 @@ solid_group.add(test_platform_3)
 goal = Block((all_globals['size'][0] - 50, all_globals['size'][1] - (50 + floor.dimensions[1])), (50, 50), None, (250, 0, 0), 'end')
 
 solid_group.add(goal)
+
+spawn_platform = Block((0,all_globals['size'][1]-50),(100,50),None,(255,255,255)),None
+
+solid_group.add(spawn_platform)
